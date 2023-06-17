@@ -7,10 +7,10 @@ FILE *primaryIndexFile;
 FILE *usernameIndexFile;
 FILE *file;
 
-int primaryIndex[SIZE];
-char usernameIndex[BUFFER_SIZE][SIZE];
-int maxPrimaryIndex;
-int maxId;
+static int primaryIndex[SIZE];
+static char usernameIndex[BUFFER_SIZE][SIZE];
+static int maxPrimaryIndex;
+static int maxId;
 
 // for internal use, within the users library
 static void writePrimaryIndex() {
@@ -40,7 +40,7 @@ static void writeRecord(struct User* user) {
 
     fprintf(
             file,
-            "%s\n%s\n%s\n%s\n%d\n%f\n%f\n%d",
+            "%s\n%s\n%s\n%s\n%d\n%f\n%f\n%d\n%f",
             user->username,
             user->password,
             user->firstName,
@@ -48,7 +48,8 @@ static void writeRecord(struct User* user) {
             user->isAdmin,
             user->credits,
             user->nextMonthPayment,
-            user->active
+            user->active,
+            user->bookedCredits
             );
 
     fclose(file);
@@ -108,6 +109,8 @@ extern struct User* checkUser(int id) {
         user->active = false;
     }
 
+    fscanf(file, "%f", &user->bookedCredits);
+
     fclose(file);
 
     return user;
@@ -133,9 +136,10 @@ extern int addUser(
     strcpy(user->firstName, firstName);
     strcpy(user->lastName, lastName);
     user->isAdmin = isAdmin;
-    user->credits = 100;
-    user->nextMonthPayment = 50;
+    user->credits = MONTHLY_CREDITS;
+    user->nextMonthPayment = MONTHLY_PRICE;
     user->active = 1;
+    user->bookedCredits = 0;
 
     writeRecord(user);
 
@@ -147,7 +151,7 @@ extern int addUser(
     return maxPrimaryIndex;
 }
 
-extern void removeUser(int id) {
+extern bool removeUser(int id) {
     int index = findIndex(id);
 
     if (index != -1) {
@@ -163,6 +167,10 @@ extern void removeUser(int id) {
 
         writePrimaryIndex();
         writeNameIndex();
+
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -172,8 +180,15 @@ extern void addCredits(int id, float credits) {
     writeRecord(user);
 }
 
+extern void bookCredits(int id, float credits) {
+    struct User* user = checkUser(id);
+    user->bookedCredits = user->bookedCredits + credits;
+    writeRecord(user);
+}
+
 extern void removeCredits(int id, float credits) {
     struct User* user = checkUser(id);
+    user->bookedCredits = user->bookedCredits - credits;
     user->credits = user->credits - credits;
     writeRecord(user);
 }
@@ -193,11 +208,12 @@ extern void displayUsersDetailed() {
     for(int i = 0; i <= maxPrimaryIndex; i++) {
         struct User* user = checkUser(primaryIndex[i]);
         printf(
-                "%d) %s %s (%s): %s, %f credits, €%f due next month\n",
+                "%d) %s %s (%s, %s): %s, %f credits, €%f due next month\n",
                 primaryIndex[i],
                 user->firstName,
                 user->lastName,
                 usernameIndex[i],
+                user->isAdmin ? "admin user" : "standard user",
                 user->active ? "active" : "inactive",
                 user->credits,
                 user->nextMonthPayment
@@ -233,6 +249,37 @@ extern struct Response* signIn(char username[BUFFER_SIZE], char password[BUFFER_
     response->status = 200;
     response->user = checkUser(id);
     return response;
+}
+
+extern void disableUser(int id) {
+    struct User* user = checkUser(id);
+    user->active = false;
+    writeRecord(user);
+}
+
+extern void enableUser(int id) {
+    struct User* user = checkUser(id);
+    user->active = false;
+    writeRecord(user);
+}
+
+extern void renewUser(int id) {
+    struct User* user = checkUser(id);
+    user->credits = user->credits + MONTHLY_CREDITS;
+    user->nextMonthPayment = MONTHLY_PRICE;
+    writeRecord(user);
+}
+
+extern void updateNextPayment(int id, float credits) {
+    struct User* user = checkUser(id);
+    user->credits = user->nextMonthPayment + credits;
+    writeRecord(user);
+}
+
+extern void displayBalance(int id) {
+    struct User* user = checkUser(id);
+    printf("Your balance is %f, of which %f booked by current borrowings.\n", user->credits, user->bookedCredits);
+    printf("Your next monthly payment will be %f.\n\n", user->nextMonthPayment);
 }
 
 extern void loadUsers() {

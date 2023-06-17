@@ -2,16 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include "meetings.h"
-#include "users.h"
 
 FILE *primaryIndexFile;
 FILE *nameIndexFile;
 FILE *file;
 
-int primaryIndex[SIZE];
-char nameIndex[BUFFER_SIZE][SIZE];
-int maxPrimaryIndex;
-int maxId;
+static int primaryIndex[SIZE];
+static char nameIndex[BUFFER_SIZE][SIZE];
+static int maxPrimaryIndex;
+static int maxId;
 
 // for internal use, within the users library
 static void writePrimaryIndex() {
@@ -41,7 +40,7 @@ static void writeRecord(struct Meeting* meeting) {
 
     fprintf(
             file,
-            "%s\n%s\n%s%d\n\n%f",
+            "%s\n%s\n%s\n%d\n%f",
             meeting->name,
             meeting->date,
             meeting->time,
@@ -107,8 +106,8 @@ extern int addMeeting(
     struct Meeting* meeting = (struct Meeting*) malloc(sizeof(struct Meeting));
 
     meeting->id = maxId;
-    strcpy(meeting->name, name);
     meeting->user = user;
+    strcpy(meeting->name, name);
     strcpy(meeting->date, date);
     strcpy(meeting->time, time);
     meeting->credits = credits;
@@ -123,7 +122,7 @@ extern int addMeeting(
     return maxPrimaryIndex;
 }
 
-extern void removeMeeting(int id) {
+extern bool removeMeeting(int id) {
     int index = findIndex(id);
 
     if (index != -1) {
@@ -139,6 +138,10 @@ extern void removeMeeting(int id) {
 
         writePrimaryIndex();
         writeNameIndex();
+
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -156,7 +159,26 @@ extern void displayMeetings() {
 extern void displayMeetingsDetailed() {
     for(int i = 0; i <= maxPrimaryIndex; i++) {
         struct Meeting* meeting = checkMeeting(primaryIndex[i]);
-        struct User* user = checkUser(meeting->user);
+        struct MeetingOwner* user = (struct MeetingOwner*) malloc(sizeof(struct MeetingOwner));
+
+        char buffer[BUFFER_SIZE];
+        snprintf(buffer, BUFFER_SIZE, USERS_DATA_PATH, meeting->user);
+        file = fopen(buffer, "r");
+
+        user->id = meeting->user;
+
+        fgets(user->username, BUFFER_SIZE, (FILE*)file);
+        user->username[strcspn(user->username, "\n")] = 0;
+
+        fgets(user->password, BUFFER_SIZE, (FILE*)file);
+        user->password[strcspn(user->password, "\n")] = 0;
+
+        fgets(user->firstName, BUFFER_SIZE, (FILE*)file);
+        user->firstName[strcspn(user->firstName, "\n")] = 0;
+
+        fgets(user->lastName, BUFFER_SIZE, (FILE*)file);
+        user->lastName[strcspn(user->lastName, "\n")] = 0;
+
         printf(
                 "%d) %s (%s %s): %s at %s (%f credits)\n",
                 primaryIndex[i],

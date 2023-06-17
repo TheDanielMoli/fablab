@@ -8,11 +8,11 @@ FILE *nameIndexFile;
 FILE *availableIndexFile;
 FILE *file;
 
-int primaryIndex[SIZE];
-char nameIndex[BUFFER_SIZE][SIZE];
-bool availableIndex[SIZE];
-int maxPrimaryIndex;
-int maxId;
+static int primaryIndex[SIZE];
+static char nameIndex[BUFFER_SIZE][SIZE];
+static bool availableIndex[SIZE];
+static int maxPrimaryIndex;
+static int maxId;
 
 // for internal use, within the equipment library
 static void writePrimaryIndex() {
@@ -50,7 +50,15 @@ static void writeRecord(struct Equipment* equipment) {
     snprintf(buffer, BUFFER_SIZE, EQUIPMENT_DATA_PATH, equipment->id);
     file = fopen(buffer, "w+");
 
-    fprintf(file, "%s\n%f %d %d", equipment->name, equipment->hourlyCredits, equipment->available, equipment->user);
+    fprintf(
+            file,
+            "%s\n%f\n%d\n%d\n%d",
+            equipment->name,
+            equipment->hourlyCredits,
+            equipment->available,
+            equipment->user,
+            equipment->hoursBooked
+            );
 
     fclose(file);
 }
@@ -92,6 +100,7 @@ extern struct Equipment* checkEquipment(int id) {
     }
 
     fscanf(file, "%d", &equipment->user);
+    fscanf(file, "%d", &equipment->hoursBooked);
 
     fclose(file);
 
@@ -112,6 +121,7 @@ extern int addEquipment(char name[BUFFER_SIZE], float hourlyCredits) {
     equipment->hourlyCredits = hourlyCredits;
     equipment->available = 1;
     equipment->user = -1;
+    equipment->hoursBooked = 0;
 
     writeRecord(equipment);
 
@@ -124,7 +134,7 @@ extern int addEquipment(char name[BUFFER_SIZE], float hourlyCredits) {
     return maxPrimaryIndex;
 }
 
-extern void removeEquipment(int id) {
+extern bool removeEquipment(int id) {
     int index = findIndex(id);
 
     if (index != -1) {
@@ -142,10 +152,14 @@ extern void removeEquipment(int id) {
         writePrimaryIndex();
         writeNameIndex();
         writeAvailableIndex();
+
+        return true;
+    } else {
+        return false;
     }
 }
 
-extern void borrowEquipment(int id, int user) {
+extern void borrowEquipment(int id, int hours, int user) {
     int index = findIndex(id);
     availableIndex[index] = false;
     writeAvailableIndex();
@@ -153,6 +167,7 @@ extern void borrowEquipment(int id, int user) {
     struct Equipment* equipment = checkEquipment(id);
     equipment->available = false;
     equipment->user = user;
+    equipment->hoursBooked = hours;
     writeRecord(equipment);
 }
 
@@ -164,6 +179,7 @@ extern void giveBackEquipment(int id) {
     struct Equipment* equipment = checkEquipment(id);
     equipment->available = true;
     equipment->user = -1;
+    equipment->hoursBooked = 0;
     writeRecord(equipment);
 }
 
@@ -178,11 +194,12 @@ extern void displayEquipmentDetailed() {
     for(int i = 0; i <= maxPrimaryIndex; i++) {
         struct Equipment* equipment = checkEquipment(primaryIndex[i]);
         printf(
-                "%d) %s: %f (%s)\n",
+                "%d) %s: %f (%s - %d hours booked)\n",
                 primaryIndex[i],
                 equipment->name,
                 equipment->hourlyCredits,
-                equipment->available ? "available" : "not available"
+                equipment->available ? "available" : "not available",
+                equipment->hoursBooked
         );
     }
     printf("\n");

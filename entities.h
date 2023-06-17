@@ -11,9 +11,9 @@
 typedef struct equipment {
     void (*load)();
     int (*add)(char name[BUFFER_SIZE], float hourlyCredits);
-    void (*remove)(int id);
+    bool (*remove)(int id);
     struct Equipment* (*check)(int id);
-    void (*borrow)(int id, int user);
+    void (*borrow)(int id, int hours, int user);
     void (*giveBack)(int id);
     void (*list)();
     void (*listWithFullDetails)();
@@ -41,7 +41,7 @@ typedef struct meetings {
             char time[BUFFER_SIZE],
             float credits
             );
-    void (*remove)(int id);
+    bool (*remove)(int id);
     struct Meeting* (*check)(int id);
     void (*list)();
     void (*listWithFullDetails)();
@@ -67,11 +67,17 @@ typedef struct users {
             char password[BUFFER_SIZE],
             bool isAdmin
     );
-    void (*remove)(int id);
+    bool (*remove)(int id);
     struct User* (*check)(int id);
     struct Response* (*signIn)(char username[BUFFER_SIZE], char password[BUFFER_SIZE]);
     void (*addCredits)(int id, float credits);
+    void (*bookCredits)(int id, float credits);
     void (*removeCredits)(int id, float credits);
+    void (*disable)(int id);
+    void (*enable)(int id);
+    void (*renew)(int id);
+    void (*updateNextPayment)(int id, float credits);
+    void (*displayBalance)(int id);
     void (*list)();
     void (*listWithFullDetails)();
 } users;
@@ -84,7 +90,13 @@ users UsersEntity() {
     _.check = &checkUser;
     _.signIn = &signIn;
     _.addCredits = &addCredits;
+    _.bookCredits = &bookCredits;
     _.removeCredits = &removeCredits;
+    _.disable = &disableUser;
+    _.enable = &enableUser;
+    _.renew = &renewUser;
+    _.updateNextPayment = &updateNextPayment;
+    _.displayBalance = &displayBalance;
     _.list = &displayUsers;
     _.listWithFullDetails = &displayUsersDetailed;
     return _;
