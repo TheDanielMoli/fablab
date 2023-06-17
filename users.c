@@ -274,7 +274,7 @@ extern struct Response* signIn(char username[BUFFER_SIZE], char password[BUFFER_
 
 extern void disableUser(int id) {
     struct User* user = checkUser(id);
-    if (user-> id != -1) {
+    if (user->id != -1) {
         user->active = false;
         writeRecord(user);
     }
@@ -282,15 +282,15 @@ extern void disableUser(int id) {
 
 extern void enableUser(int id) {
     struct User* user = checkUser(id);
-    if (user-> id != -1) {
-        user->active = false;
+    if (user->id != -1) {
+        user->active = true;
         writeRecord(user);
     }
 }
 
 extern void renewUser(int id) {
     struct User* user = checkUser(id);
-    if (user-> id != -1) {
+    if (user->id != -1) {
         user->credits = user->credits + MONTHLY_CREDITS;
         user->nextMonthPayment = MONTHLY_PRICE;
         writeRecord(user);
@@ -299,7 +299,7 @@ extern void renewUser(int id) {
 
 extern void updateNextPayment(int id, float credits) {
     struct User* user = checkUser(id);
-    if (user-> id != -1) {
+    if (user->id != -1) {
         user->credits = user->nextMonthPayment + credits;
         writeRecord(user);
     }
