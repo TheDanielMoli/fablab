@@ -33,6 +33,7 @@ extern int addUser(
         );
 extern void removeUser(int id);
 extern struct User* checkUser(int id);
+extern int signIn(char username[BUFFER_SIZE], char password[BUFFER_SIZE]);
 extern void addCredits(int id, float credits);
 extern void removeCredits(int id, float credits);
 extern void displayUsers();

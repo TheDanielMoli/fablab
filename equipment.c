@@ -156,7 +156,7 @@ extern void borrowEquipment(int id, int user) {
     writeRecord(equipment);
 }
 
-extern void returnEquipment(int id) {
+extern void giveBackEquipment(int id) {
     int index = findIndex(id);
     availableIndex[index] = true;
     writeAvailableIndex();

@@ -206,6 +206,28 @@ extern void displayUsersDetailed() {
     printf("\n");
 }
 
+extern int signIn(char username[BUFFER_SIZE], char password[BUFFER_SIZE]) {
+    bool found = false;
+    bool ok = false;
+    for (int i = 0; i <= maxPrimaryIndex; i++) {
+        if (strcmp(username, usernameIndex[i]) == 0) {
+            found = true;
+            struct User* user = checkUser(primaryIndex[i]);
+            if (strcmp(password, user -> password) == 0) {
+                ok = true;
+            }
+            break;
+        }
+    }
+    if (!found) {
+        return 404;
+    }
+    if (!ok) {
+        return 401;
+    }
+    return 200;
+}
+
 extern void loadUsers() {
     for (int i = 0; i < SIZE; i++) {
         primaryIndex[i] = -1;
