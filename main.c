@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "entities.h"
 
 int main() {
@@ -15,7 +16,8 @@ int main() {
 
     // sign in
 
-    int signedIn = false;
+    bool signedIn = false; // user id
+    struct User* user;
 
     while (!signedIn) {
         printf("Sign in to access your account.\n");
@@ -28,12 +30,13 @@ int main() {
 
         printf("\n");
 
-        int result = Users.signIn(username, password);
+        struct Response* response = Users.signIn(username, password);
 
-        switch (result) {
+        switch (response->status) {
             case 200:
-                printf("Sign in successful!\n\n");
                 signedIn = true;
+                user = response->user;
+                printf("Welcome, %s!\n\n", user->firstName);
                 break;
             case 404:
                 printf("User does not exist, try again!\n\n");
@@ -47,7 +50,35 @@ int main() {
         }
     }
 
-    printf("Bye!\n");
+    // print menu
 
-    return 0;
+    while(1) {
+        printf("Available commands:\n");
+        printf("- exit\n");
+        if (user->isAdmin) {
+            printf("- list-users\n");
+            printf("- list-equipment\n");
+            printf("- list-meetings\n");
+            printf("- add-user\n");
+            printf("- add-equipment\n");
+            printf("- add-meeting\n");
+        }
+        printf("\n");
+
+        printf("command: ");
+        char command[BUFFER_SIZE];
+        scanf("%s", command);
+        printf("\n");
+
+        if (strcmp(command, "exit") == 0) {
+            printf("Bye!\n");
+            return 0;
+        } else if (strcmp(command, "list-users") == 0) {
+            Users.listWithFullDetails();
+        } else if (strcmp(command, "list-equipment") == 0) {
+            Equipment.listWithFullDetails();
+        } else if (strcmp(command, "list-meetings") == 0) {
+            Meetings.listWithFullDetails();
+        }
+    }
 }

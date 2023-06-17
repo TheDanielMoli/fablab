@@ -69,7 +69,7 @@ typedef struct users {
     );
     void (*remove)(int id);
     struct User* (*check)(int id);
-    int (*signIn)(char username[BUFFER_SIZE], char password[BUFFER_SIZE]);
+    struct Response* (*signIn)(char username[BUFFER_SIZE], char password[BUFFER_SIZE]);
     void (*addCredits)(int id, float credits);
     void (*removeCredits)(int id, float credits);
     void (*list)();
