@@ -4,14 +4,18 @@
 #include "meetings.h"
 
 int main() {
+    printf("Welcome to the FabLab!\n\n");
+
     loadEquipment();
-    displayEquipment();
+    displayEquipmentDetailed();
 
     loadUsers();
     displayUsersDetailed();
 
     loadMeetings();
     displayMeetingsDetailed();
+
+    printf("Bye!");
 
     return 0;
 }

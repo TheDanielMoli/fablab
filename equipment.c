@@ -69,7 +69,7 @@ static int findIndex(int id) {
     return index;
 }
 
-extern struct Equipment* readEquipment(int id) {
+extern struct Equipment* checkEquipment(int id) {
     char buffer[BUFFER_SIZE];
     snprintf(buffer, BUFFER_SIZE, EQUIPMENT_DATA_PATH, id);
     file = fopen(buffer, "r");
@@ -150,7 +150,7 @@ extern void borrowEquipment(int id, int user) {
     availableIndex[index] = false;
     writeAvailableIndex();
 
-    struct Equipment* equipment = readEquipment(id);
+    struct Equipment* equipment = checkEquipment(id);
     equipment->available = false;
     equipment->user = user;
     writeRecord(equipment);
@@ -161,7 +161,7 @@ extern void returnEquipment(int id) {
     availableIndex[index] = true;
     writeAvailableIndex();
 
-    struct Equipment* equipment = readEquipment(id);
+    struct Equipment* equipment = checkEquipment(id);
     equipment->available = true;
     equipment->user = -1;
     writeRecord(equipment);
@@ -170,6 +170,20 @@ extern void returnEquipment(int id) {
 extern void displayEquipment() {
     for(int i = 0; i <= maxPrimaryIndex; i++) {
         printf("%d) %s: %s\n", primaryIndex[i], nameIndex[i], availableIndex[i] ? "available" : "not available");
+    }
+    printf("\n");
+}
+
+extern void displayEquipmentDetailed() {
+    for(int i = 0; i <= maxPrimaryIndex; i++) {
+        struct Equipment* equipment = checkEquipment(primaryIndex[i]);
+        printf(
+                "%d) %s: %f (%s)\n",
+                primaryIndex[i],
+                equipment->name,
+                equipment->hourlyCredits,
+                equipment->available ? "available" : "not available"
+        );
     }
     printf("\n");
 }

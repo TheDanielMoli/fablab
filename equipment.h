@@ -23,9 +23,10 @@ extern void loadEquipment();
 
 extern int addEquipment(char name[BUFFER_SIZE], float hourlyCredits);
 extern void removeEquipment(int id);
-extern struct Equipment* readEquipment(int id);
+extern struct Equipment* checkEquipment(int id);
 extern void borrowEquipment(int id, int user);
 extern void returnEquipment(int id);
 extern void displayEquipment();
+extern void displayEquipmentDetailed();
 
 #endif //FABLAB_EQUIPMENT_H
