@@ -3,4 +3,4 @@ project(fablab C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(fablab main.c equipment.h equipment.c users.h users.c meetings.h meetings.c entities.h)
+add_executable(fablab main.c equipment.h equipment.c users.h users.c meetings.h meetings.c entities.h colors.h colors.c)
