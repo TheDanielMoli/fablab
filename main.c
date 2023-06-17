@@ -335,12 +335,18 @@ int main() {
 
                 struct Meeting *meeting = Meetings.check(id);
 
-                Users.updateNextPayment(meeting->user, meeting->credits);
+                if (meeting->id != -1) {
+                    Users.updateNextPayment(meeting->user, meeting->credits);
 
-                if (Meetings.remove(id)) {
-                    color(GREEN);
-                    printf("Meeting %d removed", id);
-                    color(DEFAULT);
+                    if (Meetings.remove(id)) {
+                        color(GREEN);
+                        printf("Meeting %d removed", id);
+                        color(DEFAULT);
+                    } else {
+                        color(YELLOW);
+                        printf("Could not find meeting with id %d", id);
+                        color(DEFAULT);
+                    }
                 } else {
                     color(YELLOW);
                     printf("Could not find meeting with id %d", id);
@@ -356,21 +362,27 @@ int main() {
                 scanf("%d", &id);
 
                 struct User *user = Users.check(id);
-                if (user->isAdmin) {
-                    color(RED);
-                    printf("Admin users can't be disabled");
-                    color(DEFAULT);
-                } else {
-                    if (user->active) {
-                        Users.disable(id);
-                        color(GREEN);
-                        printf("User %d now disabled", id);
+                if (user->id != -1) {
+                    if (user->isAdmin) {
+                        color(RED);
+                        printf("Admin users can't be disabled");
                         color(DEFAULT);
                     } else {
-                        color(YELLOW);
-                        printf("User %d already disabled", id);
-                        color(DEFAULT);
+                        if (user->active) {
+                            Users.disable(id);
+                            color(GREEN);
+                            printf("User %d now disabled", id);
+                            color(DEFAULT);
+                        } else {
+                            color(YELLOW);
+                            printf("User %d already disabled", id);
+                            color(DEFAULT);
+                        }
                     }
+                } else {
+                    color(RED);
+                    printf("Could not find user %d", id);
+                    color(DEFAULT);
                 }
 
                 printf("\n\n");
@@ -382,14 +394,20 @@ int main() {
                 scanf("%d", &id);
 
                 struct User *user = Users.check(id);
-                if (user->active) {
-                    color(YELLOW);
-                    printf("User %d already enabled", id);
-                    color(DEFAULT);
+                if (user->id != -1) {
+                    if (user->active) {
+                        color(YELLOW);
+                        printf("User %d already enabled", id);
+                        color(DEFAULT);
+                    } else {
+                        Users.enable(id);
+                        color(GREEN);
+                        printf("User %d now enabled", id);
+                        color(DEFAULT);
+                    }
                 } else {
-                    Users.enable(id);
-                    color(GREEN);
-                    printf("User %d now enabled", id);
+                    color(RED);
+                    printf("Could not find user %d", id);
                     color(DEFAULT);
                 }
 

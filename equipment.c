@@ -78,11 +78,22 @@ static int findIndex(int id) {
 }
 
 extern struct Equipment* checkEquipment(int id) {
+    struct Equipment *equipment = (struct Equipment*) malloc(sizeof(struct Equipment));
+
+    bool found = false;
+    for (int i = 0; i <= maxPrimaryIndex; i++) {
+        if (id == primaryIndex[i]) {
+            found = true;
+        }
+    }
+    if (!found) {
+        equipment->id = -1;
+        return equipment;
+    }
+
     char buffer[BUFFER_SIZE];
     snprintf(buffer, BUFFER_SIZE, EQUIPMENT_DATA_PATH, id);
     file = fopen(buffer, "r");
-
-    struct Equipment *equipment = (struct Equipment*) malloc(sizeof(struct Equipment));
 
     equipment->id = id;
 
@@ -165,10 +176,13 @@ extern void borrowEquipment(int id, int hours, int user) {
     writeAvailableIndex();
 
     struct Equipment* equipment = checkEquipment(id);
-    equipment->available = false;
-    equipment->user = user;
-    equipment->hoursBooked = hours;
-    writeRecord(equipment);
+
+    if (equipment-> id != -1) {
+        equipment->available = false;
+        equipment->user = user;
+        equipment->hoursBooked = hours;
+        writeRecord(equipment);
+    }
 }
 
 extern void giveBackEquipment(int id) {
@@ -177,10 +191,12 @@ extern void giveBackEquipment(int id) {
     writeAvailableIndex();
 
     struct Equipment* equipment = checkEquipment(id);
-    equipment->available = true;
-    equipment->user = -1;
-    equipment->hoursBooked = 0;
-    writeRecord(equipment);
+    if (equipment-> id != -1) {
+        equipment->available = true;
+        equipment->user = -1;
+        equipment->hoursBooked = 0;
+        writeRecord(equipment);
+    }
 }
 
 extern void displayEquipment() {
@@ -193,14 +209,16 @@ extern void displayEquipment() {
 extern void displayEquipmentDetailed() {
     for(int i = 0; i <= maxPrimaryIndex; i++) {
         struct Equipment* equipment = checkEquipment(primaryIndex[i]);
-        printf(
-                "%d) %s: %f (%s - %d hours booked)\n",
-                primaryIndex[i],
-                equipment->name,
-                equipment->hourlyCredits,
-                equipment->available ? "available" : "not available",
-                equipment->hoursBooked
-        );
+        if (equipment-> id != -1) {
+            printf(
+                    "%d) %s: %f (%s - %d hours booked)\n",
+                    primaryIndex[i],
+                    equipment->name,
+                    equipment->hourlyCredits,
+                    equipment->available ? "available" : "not available",
+                    equipment->hoursBooked
+            );
+        }
     }
     printf("\n");
 }

@@ -70,11 +70,22 @@ static int findIndex(int id) {
 }
 
 extern struct User* checkUser(int id) {
+    struct User *user = (struct User*) malloc(sizeof(struct User));
+
+    bool found = false;
+    for (int i = 0; i <= maxPrimaryIndex; i++) {
+        if (id == primaryIndex[i]) {
+            found = true;
+        }
+    }
+    if (!found) {
+        user->id = -1;
+        return user;
+    }
+
     char buffer[BUFFER_SIZE];
     snprintf(buffer, BUFFER_SIZE, USERS_DATA_PATH, id);
     file = fopen(buffer, "r");
-
-    struct User *user = (struct User*) malloc(sizeof(struct User));
 
     user->id = id;
 
@@ -176,21 +187,27 @@ extern bool removeUser(int id) {
 
 extern void addCredits(int id, float credits) {
     struct User* user = checkUser(id);
-    user->credits = user->credits + credits;
-    writeRecord(user);
+    if (user-> id != -1) {
+        user->credits = user->credits + credits;
+        writeRecord(user);
+    }
 }
 
 extern void bookCredits(int id, float credits) {
     struct User* user = checkUser(id);
-    user->bookedCredits = user->bookedCredits + credits;
-    writeRecord(user);
+    if (user-> id != -1) {
+        user->bookedCredits = user->bookedCredits + credits;
+        writeRecord(user);
+    }
 }
 
 extern void removeCredits(int id, float credits) {
     struct User* user = checkUser(id);
-    user->bookedCredits = user->bookedCredits - credits;
-    user->credits = user->credits - credits;
-    writeRecord(user);
+    if (user-> id != -1) {
+        user->bookedCredits = user->bookedCredits - credits;
+        user->credits = user->credits - credits;
+        writeRecord(user);
+    }
 }
 
 extern void displayUsers() {
@@ -207,17 +224,19 @@ extern void displayUsers() {
 extern void displayUsersDetailed() {
     for(int i = 0; i <= maxPrimaryIndex; i++) {
         struct User* user = checkUser(primaryIndex[i]);
-        printf(
-                "%d) %s %s (%s, %s): %s, %f credits, €%f due next month\n",
-                primaryIndex[i],
-                user->firstName,
-                user->lastName,
-                usernameIndex[i],
-                user->isAdmin ? "admin user" : "standard user",
-                user->active ? "active" : "inactive",
-                user->credits,
-                user->nextMonthPayment
-        );
+        if (user-> id != -1) {
+            printf(
+                    "%d) %s %s (%s, %s): %s, %f credits, €%f due next month\n",
+                    primaryIndex[i],
+                    user->firstName,
+                    user->lastName,
+                    usernameIndex[i],
+                    user->isAdmin ? "admin user" : "standard user",
+                    user->active ? "active" : "inactive",
+                    user->credits,
+                    user->nextMonthPayment
+            );
+        }
     }
     printf("\n");
 }
@@ -230,10 +249,12 @@ extern struct Response* signIn(char username[BUFFER_SIZE], char password[BUFFER_
         if (strcmp(username, usernameIndex[i]) == 0) {
             found = true;
             struct User* user = checkUser(primaryIndex[i]);
-            if (strcmp(password, user->password) == 0) {
-                ok = true;
+            if (user-> id != -1) {
+                if (strcmp(password, user->password) == 0) {
+                    ok = true;
+                }
+                id = user->id;
             }
-            id = user->id;
             break;
         }
     }
@@ -253,33 +274,43 @@ extern struct Response* signIn(char username[BUFFER_SIZE], char password[BUFFER_
 
 extern void disableUser(int id) {
     struct User* user = checkUser(id);
-    user->active = false;
-    writeRecord(user);
+    if (user-> id != -1) {
+        user->active = false;
+        writeRecord(user);
+    }
 }
 
 extern void enableUser(int id) {
     struct User* user = checkUser(id);
-    user->active = false;
-    writeRecord(user);
+    if (user-> id != -1) {
+        user->active = false;
+        writeRecord(user);
+    }
 }
 
 extern void renewUser(int id) {
     struct User* user = checkUser(id);
-    user->credits = user->credits + MONTHLY_CREDITS;
-    user->nextMonthPayment = MONTHLY_PRICE;
-    writeRecord(user);
+    if (user-> id != -1) {
+        user->credits = user->credits + MONTHLY_CREDITS;
+        user->nextMonthPayment = MONTHLY_PRICE;
+        writeRecord(user);
+    }
 }
 
 extern void updateNextPayment(int id, float credits) {
     struct User* user = checkUser(id);
-    user->credits = user->nextMonthPayment + credits;
-    writeRecord(user);
+    if (user-> id != -1) {
+        user->credits = user->nextMonthPayment + credits;
+        writeRecord(user);
+    }
 }
 
 extern void displayBalance(int id) {
     struct User* user = checkUser(id);
-    printf("Your balance is %f, of which %f booked by current borrowings.\n", user->credits, user->bookedCredits);
-    printf("Your next monthly payment will be %f.\n\n", user->nextMonthPayment);
+    if (user-> id != -1) {
+        printf("Your balance is %f, of which %f booked by current borrowings.\n", user->credits, user->bookedCredits);
+        printf("Your next monthly payment will be %f.\n\n", user->nextMonthPayment);
+    }
 }
 
 extern void loadUsers() {
