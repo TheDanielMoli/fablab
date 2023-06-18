@@ -133,26 +133,32 @@ int main() {
             color(DEFAULT);
             scanf("%d", &hours);
 
-            struct Equipment* equipment = checkEquipment(id);
+            if (!user->active) {
+                color(RED);
+                printf("Your account is inactive! Did you pay your monthly subscription?");
+                color(DEFAULT);
+            } else {
+                struct Equipment *equipment = checkEquipment(id);
 
-            if (equipment->available) {
-                float credits = equipment->hourlyCredits * (float)hours;
-                if (user->credits - user->bookedCredits > credits) {
-                    Users.bookCredits(user->id, credits);
-                    user = Users.check(user->id);
-                    Equipment.borrow(id, hours, user->id);
-                    color(GREEN);
-                    printf("You just borrowed equipment %d!", id);
-                    color(DEFAULT);
+                if (equipment->id != -1 && equipment->available) {
+                    float credits = equipment->hourlyCredits * (float) hours;
+                    if (user->credits - user->bookedCredits > credits) {
+                        Users.bookCredits(user->id, credits);
+                        user = Users.check(user->id);
+                        Equipment.borrow(id, hours, user->id);
+                        color(GREEN);
+                        printf("You just borrowed equipment %d!", id);
+                        color(DEFAULT);
+                    } else {
+                        color(RED);
+                        printf("Insufficient credits for borrowing equipment %d!", id);
+                        color(DEFAULT);
+                    }
                 } else {
                     color(RED);
-                    printf("Insufficient credits for borrowing equipment %d!", id);
+                    printf("Equipment %d is not available!", id);
                     color(DEFAULT);
                 }
-            } else {
-                color(RED);
-                printf("Equipment %d is not available!", id);
-                color(DEFAULT);
             }
 
             printf("\n\n");
@@ -165,7 +171,7 @@ int main() {
 
             struct Equipment* equipment = checkEquipment(id);
 
-            if (equipment->user == user->id && !equipment->available) {
+            if (equipment->id != -1 && equipment->user == user->id && !equipment->available) {
                 float credits = equipment->hourlyCredits * (float)equipment->hoursBooked;
                 Users.removeCredits(user->id, credits);
                 user = Users.check(user->id);
@@ -173,7 +179,7 @@ int main() {
                 color(GREEN);
                 printf("You just returned equipment %d and paid %f credits!", id, credits);
                 color(DEFAULT);
-            } else if (equipment->available) {
+            } else if (equipment->id != -1 && equipment->available) {
                 color(YELLOW);
                 printf("Equipment %d is available, you haven't booked it!", id);
                 color(DEFAULT);

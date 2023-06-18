@@ -21,3 +21,21 @@ Instructions:
 It works both on macOS x86 (Intel) and macOS arm64 (Apple Silicon).
 
 It has never been tested on Windows. The recommended IDE for this exam (Dev-++) only runs on Windows. Therefore, I have no idea if this will ever run on Dev-C++, or even on Windows.
+
+## User accounts
+
+FabLab has the following default (test) accounts:
+
+* Standard account
+
+```
+username: john
+password: password
+```
+
+* Admin account
+
+```
+username: admin
+password: admin
+```
