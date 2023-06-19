@@ -4,24 +4,45 @@
 #include "entities.h"
 #include "colors.h"
 
+struct equipment Equipment;
+struct meetings Meetings;
+struct users Users;
+
+struct User* user;
+
+void signInForm();
+void help();
+void loop();
+
 int main() {
     // initialize dao (data access object) entities
-    struct equipment Equipment = EquipmentEntity();
-    struct meetings Meetings = MeetingsEntity();
-    struct users Users = UsersEntity();
+    Equipment = EquipmentEntity();
+    Meetings = MeetingsEntity();
+    Users = UsersEntity();
 
     Equipment.load();
     Users.load();
     Meetings.load();
+
+    // welcome the user
 
     color(CYAN);
     printf("Welcome to the FabLab!\n\n");
     color(DEFAULT);
 
     // sign in
+    signInForm();
 
+    // signed in, display intro and wait for commands
+
+    printf("Use command \"help\" to get a list of all available commands\n\n");
+
+    // the main loop
+    loop();
+}
+
+void signInForm() {
     bool signedIn = false; // user id
-    struct User* user;
 
     while (!signedIn) {
         printf("Sign in to access your account:\n");
@@ -70,55 +91,60 @@ int main() {
                 color(RED);
                 printf("Unexpected status from sign in, exiting\n\n");
                 color(DEFAULT);
-                return -1;
+                break;
         }
 
         free(response);
     }
+}
 
-    // print menu
+void help() {
+    printf("Available commands:\n");
+    color(CYAN);
+    printf("- exit\n");
+    printf("- help\n");
+    printf("- list-equipment\n");
+    printf("- view-balance\n");
+    printf("- borrow-equipment\n");
+    printf("- return-equipment\n");
+    printf("- list-meetings\n");
 
-    printf("Use command \"help\" to get a list of all available commands\n\n");
+    if (user->isAdmin) {
+        printf("- list-users\n");
+        printf("- add-user\n");
+        printf("- add-equipment\n");
+        printf("- add-meeting\n");
+        printf("- remove-user\n");
+        printf("- remove-equipment\n");
+        printf("- remove-meeting\n");
+        printf("- disable-user\n");
+        printf("- enable-user\n");
+        printf("- renew-subscription\n");
+    }
+    color(DEFAULT);
 
+    printf("\n");
+}
+
+void loop() {
     while(1) {
         color(CYAN);
         printf("command: ");
         color(DEFAULT);
+
+        // scan command from stdin
         char command[BUFFER_SIZE];
         scanf("%s", command);
         printf("\n");
 
+        // decipher and run the command
         if (strcmp(command, "exit") == 0) {
             color(CYAN);
             printf("Bye!\n");
             color(DEFAULT);
-            return 0;
+            exit(0);
         } else if (strcmp(command, "help") == 0) {
-            printf("Available commands:\n");
-            color(CYAN);
-            printf("- exit\n");
-            printf("- help\n");
-            printf("- list-equipment\n");
-            printf("- view-balance\n");
-            printf("- borrow-equipment\n");
-            printf("- return-equipment\n");
-            printf("- list-meetings\n");
-
-            if (user->isAdmin) {
-                printf("- list-users\n");
-                printf("- add-user\n");
-                printf("- add-equipment\n");
-                printf("- add-meeting\n");
-                printf("- remove-user\n");
-                printf("- remove-equipment\n");
-                printf("- remove-meeting\n");
-                printf("- disable-user\n");
-                printf("- enable-user\n");
-                printf("- renew-subscription\n");
-            }
-            color(DEFAULT);
-
-            printf("\n");
+            help();
         } else if (strcmp(command, "list-equipment") == 0) {
             Equipment.listWithFullDetails();
         } else if (strcmp(command, "view-balance") == 0) {
