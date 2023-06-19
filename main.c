@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "entities.h"
 #include "colors.h"
 
@@ -71,6 +72,8 @@ int main() {
                 color(DEFAULT);
                 return -1;
         }
+
+        free(response);
     }
 
     // print menu
@@ -159,6 +162,8 @@ int main() {
                     printf("Equipment %d is not available!", id);
                     color(DEFAULT);
                 }
+
+                free(equipment);
             }
 
             printf("\n\n");
@@ -188,6 +193,8 @@ int main() {
                 printf("Equipment %d has been booked by someone else!", id);
                 color(DEFAULT);
             }
+
+            free(equipment);
 
             printf("\n\n");
         } else if (strcmp(command, "list-meetings") == 0) {
@@ -359,6 +366,8 @@ int main() {
                     color(DEFAULT);
                 }
 
+                free(meeting);
+
                 printf("\n\n");
             } else if (strcmp(command, "disable-user") == 0) {
                 int id;
@@ -368,6 +377,7 @@ int main() {
                 scanf("%d", &id);
 
                 struct User *user = Users.check(id);
+
                 if (user->id != -1) {
                     if (user->isAdmin) {
                         color(RED);
@@ -391,6 +401,8 @@ int main() {
                     color(DEFAULT);
                 }
 
+                free(user);
+
                 printf("\n\n");
             } else if (strcmp(command, "enable-user") == 0) {
                 int id;
@@ -400,6 +412,7 @@ int main() {
                 scanf("%d", &id);
 
                 struct User *user = Users.check(id);
+
                 if (user->id != -1) {
                     if (user->active) {
                         color(YELLOW);
@@ -416,6 +429,8 @@ int main() {
                     printf("Could not find user %d", id);
                     color(DEFAULT);
                 }
+
+                free(user);
 
                 printf("\n\n");
             } else if (strcmp(command, "renew-subscription") == 0) {

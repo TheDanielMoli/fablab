@@ -124,6 +124,7 @@ extern int addMeeting(
     meeting->credits = credits;
 
     writeRecord(meeting);
+    free(meeting);
 
     fclose(file);
 
@@ -202,6 +203,9 @@ extern void displayMeetingsDetailed() {
                     meeting->credits
             );
         }
+
+        free(user);
+        free(meeting);
     }
     printf("\n");
 }

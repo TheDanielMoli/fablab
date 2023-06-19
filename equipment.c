@@ -135,6 +135,7 @@ extern int addEquipment(char name[BUFFER_SIZE], float hourlyCredits) {
     equipment->hoursBooked = 0;
 
     writeRecord(equipment);
+    free(equipment);
 
     fclose(file);
 
@@ -183,6 +184,8 @@ extern void borrowEquipment(int id, int hours, int user) {
         equipment->hoursBooked = hours;
         writeRecord(equipment);
     }
+
+    free(equipment);
 }
 
 extern void giveBackEquipment(int id) {
@@ -197,6 +200,8 @@ extern void giveBackEquipment(int id) {
         equipment->hoursBooked = 0;
         writeRecord(equipment);
     }
+
+    free(equipment);
 }
 
 extern void displayEquipment() {
@@ -219,6 +224,7 @@ extern void displayEquipmentDetailed() {
                     equipment->hoursBooked
             );
         }
+        free(equipment);
     }
     printf("\n");
 }

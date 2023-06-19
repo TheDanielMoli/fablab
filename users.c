@@ -154,6 +154,8 @@ extern int addUser(
 
     writeRecord(user);
 
+    free(user);
+
     fclose(file);
 
     writePrimaryIndex();
@@ -191,6 +193,7 @@ extern void addCredits(int id, float credits) {
         user->credits = user->credits + credits;
         writeRecord(user);
     }
+    free(user);
 }
 
 extern void bookCredits(int id, float credits) {
@@ -199,6 +202,7 @@ extern void bookCredits(int id, float credits) {
         user->bookedCredits = user->bookedCredits + credits;
         writeRecord(user);
     }
+    free(user);
 }
 
 extern void removeCredits(int id, float credits) {
@@ -208,6 +212,7 @@ extern void removeCredits(int id, float credits) {
         user->credits = user->credits - credits;
         writeRecord(user);
     }
+    free(user);
 }
 
 extern void displayUsers() {
@@ -237,6 +242,7 @@ extern void displayUsersDetailed() {
                     user->nextMonthPayment
             );
         }
+        free(user);
     }
     printf("\n");
 }
@@ -255,6 +261,7 @@ extern struct Response* signIn(char username[BUFFER_SIZE], char password[BUFFER_
                 }
                 id = user->id;
             }
+            free(user);
             break;
         }
     }
@@ -278,6 +285,7 @@ extern void disableUser(int id) {
         user->active = false;
         writeRecord(user);
     }
+    free(user);
 }
 
 extern void enableUser(int id) {
@@ -286,6 +294,7 @@ extern void enableUser(int id) {
         user->active = true;
         writeRecord(user);
     }
+    free(user);
 }
 
 extern void renewUser(int id) {
@@ -295,6 +304,7 @@ extern void renewUser(int id) {
         user->nextMonthPayment = MONTHLY_PRICE;
         writeRecord(user);
     }
+    free(user);
 }
 
 extern void updateNextPayment(int id, float credits) {
@@ -303,6 +313,7 @@ extern void updateNextPayment(int id, float credits) {
         user->credits = user->nextMonthPayment + credits;
         writeRecord(user);
     }
+    free(user);
 }
 
 extern void displayBalance(int id) {
@@ -311,6 +322,7 @@ extern void displayBalance(int id) {
         printf("Your balance is %f, of which %f booked by current borrowings.\n", user->credits, user->bookedCredits);
         printf("Your next monthly payment will be %f.\n\n", user->nextMonthPayment);
     }
+    free(user);
 }
 
 extern void loadUsers() {
